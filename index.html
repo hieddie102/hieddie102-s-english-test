@@ -55,7 +55,7 @@ input.bad{border-color:var(--bad);background:var(--badbg)}
 <body>
 <div class="app">
   <h1>📘 單字填空挑戰</h1>
-  <p class="sub">英文單字範圍約 2000–5000 字 · 共 <span id="total"></span> 題</p>
+  <p class="sub">英文單字範圍約 2000–4000 字 · 共 <span id="total"></span> 題</p>
 
   <div id="home" class="card">
     <b>選擇練習模式</b>
@@ -105,10 +105,10 @@ const Q = [
 ["The company decided to ___ its old computers with newer models.","replace","公司決定用較新的型號替換舊電腦。","v."],
 ["She worked hard to ___ her dream of becoming a doctor.","achieve","她努力工作以實現成為醫生的夢想。","v."],
 ["The test results were not ___ to show any clear pattern.","sufficient","測試結果不足以顯示任何明確的模式。","adj."],
-["His explanation was so ___ that nobody understood what he meant.","ambiguous","他的解釋非常含糊,沒有人明白他的意思。","adj."],
-["We should ___ heavy traffic on the way to the airport.","anticipate","我們應該預期前往機場的路上會塞車。","v."],
+["His explanation was so ___ that nobody understood what he meant.","confusing","他的解釋太令人困惑,沒有人明白他的意思。","adj."],
+["We should ___ heavy traffic on the way to the airport.","expect","我們應該預期前往機場的路上會塞車。","v."],
 ["I really ___ your help with the moving.","appreciate","我真的很感激你幫忙搬家。","v."],
-["The government plans to ___ more money for public schools.","allocate","政府計畫為公立學校撥出更多經費。","v."],
+["The government plans to ___ more money on public schools.","spend","政府計畫在公立學校花費更多經費。","v."],
 ["The museum has a large collection of ___ Egyptian art.","ancient","這間博物館收藏了大量古埃及藝術品。","adj."],
 ["He felt ___ before the job interview and couldn't sleep.","anxious","面試前他感到焦慮,無法入睡。","adj."],
 ["Scientists are developing ___ intelligence that can learn on its own.","artificial","科學家正在開發能自我學習的人工智慧。","adj."],
@@ -120,7 +120,7 @@ const Q = [
 ["Under no ___ should you open this door.","circumstances","在任何情況下你都不應該打開這扇門。","n."],
 ["The old bridge may ___ if it isn't repaired soon.","collapse","這座舊橋若不盡快修理可能會倒塌。","v."],
 ["The company will ___ millions of dollars to the new project.","commit","公司將投入數百萬美元於這個新專案。","v."],
-["Nothing can ___ for the loss of a close friend.","compensate","沒有什麼能彌補失去摯友的痛苦。","v."],
+["She needs a few days to ___ from the flu.","recover","她需要幾天時間從流感中復原。","v."],
 ["The tax system is too ___ for most people to understand.","complex","稅制太複雜,大多數人無法理解。","adj."],
 ["Please turn off your phone so you can ___ on your homework.","concentrate","請關掉手機,這樣你才能專心寫作業。","v."],
 ["After reviewing the evidence, the jury had to ___ that he was guilty.","conclude","審閱證據後,陪審團必須斷定他有罪。","v."],
@@ -129,7 +129,7 @@ const Q = [
 ["Eating too much sugar can have serious health ___.","consequences","攝取過多糖分可能造成嚴重的健康後果。","n."],
 ["The new law caused a ___ amount of debate in parliament.","considerable","新法案在國會引發了相當多的辯論。","adj."],
 ["Many volunteers ___ their time to help the elderly.","contribute","許多志工奉獻時間幫助老年人。","v."],
-["The decision to close the factory was highly ___.","controversial","關閉工廠的決定極具爭議性。","adj."],
+["Driving too fast on wet roads is extremely ___.","dangerous","在濕滑的道路上開太快極其危險。","adj."],
 ["It took hours to ___ him that the plan was safe.","convince","花了好幾個小時才說服他這個計畫是安全的。","v."],
 ["The two teams must ___ if they want to finish on time.","cooperate","兩個團隊若想準時完成就必須合作。","v."],
 ["It's easy to ___ others, but much harder to do better yourself.","criticize","批評別人很容易,但自己做得更好卻困難得多。","v."],
@@ -140,11 +140,11 @@ const Q = [
 ["Your success will ___ on how hard you work.","depend","你的成功取決於你有多努力。","v."],
 ["It is hard to ___ between the twin sisters.","distinguish","要分辨這對雙胞胎姊妹很困難。","v."],
 ["The airline offers both ___ and international flights.","domestic","這家航空公司提供國內與國際航班。","adj."],
-["This phone case is made of a very ___ material that lasts for years.","durable","這個手機殼由非常耐用的材質製成,可用好幾年。","adj."],
+["This sofa is soft and very ___ to sit on.","comfortable","這張沙發很柔軟,坐起來非常舒服。","adj."],
 ["Farmers have to ___ to changes in the climate.","adapt","農民必須適應氣候的變化。","v."],
 ["The sudden rain forced us to ___ our travel plans.","adjust","突如其來的雨迫使我們調整旅行計畫。","v."],
-["She is a strong ___ for women's rights.","advocate","她是女權的堅定倡導者。","n."],
-["Fruits and vegetables are ___ in this region during summer.","abundant","這個地區夏天水果和蔬菜十分豐富。","adj."],
+["She is a strong ___ of women's rights.","supporter","她是女權的堅定支持者。","n."],
+["This restaurant is very ___ with tourists.","popular","這間餐廳很受觀光客歡迎。","adj."],
 ["Please give me an ___ description of the missing wallet.","accurate","請給我遺失錢包的準確描述。","adj."],
 ["The captain refused to ___ the sinking ship until everyone was safe.","abandon","船長在所有人安全之前拒絕棄船。","v."],
 ["Paris has a unique ___ that attracts artists from all over the world.","atmosphere","巴黎有獨特的氛圍,吸引來自世界各地的藝術家。","n."],
@@ -157,10 +157,10 @@ const Q = [
 ["Pollution is a serious threat to the natural ___.","environment","汙染對自然環境是嚴重的威脅。","n."],
 ["He was awarded a ___ to study abroad for two years.","scholarship","他獲得獎學金出國讀書兩年。","n."],
 ["Our teacher always ___ us to ask questions in class.","encourages","我們的老師總是鼓勵我們在課堂上提問。","v."],
-["The sales ___ rose sharply in the second half of the year.","figures","下半年的銷售數字大幅上升。","n."],
-["The doctor told him to ___ from smoking immediately.","refrain","醫生要他立刻戒除抽菸。","v."],
+["There was a sharp ___ in the price of oil last month.","increase","上個月石油價格大幅上漲。","n."],
+["The doctor told him to ___ smoking immediately.","avoid","醫生要他立刻避免抽菸。","v."],
 ["Honesty is one of the most important ___ in a friendship.","qualities","誠實是友誼中最重要的特質之一。","n."],
-["The two countries signed a peace ___ after years of war.","treaty","兩國在多年戰爭後簽署了和平條約。","n."],
+["The two countries signed a peace ___ after years of war.","agreement","兩國在多年戰爭後簽署了和平協議。","n."],
 ["Her ___ to the team was recognized with a special award.","contribution","她對團隊的貢獻獲得特別獎項的肯定。","n."],
 ["The scientist made an important ___ while studying bacteria.","discovery","這位科學家在研究細菌時有了重要發現。","n."],
 ["We need to ___ the risks before making a final decision.","evaluate","我們在做最後決定前需要評估風險。","v."],
@@ -214,19 +214,25 @@ function submit(){
   if(answered){ next(); return; }
   const inp = $('ans'), val = inp.value.trim().toLowerCase();
   if(!val) return;
-  const a = deck[i][1];
+  const [s, a] = deck[i];
+  const [pre, post] = s.split('___');
   answered = true; inp.disabled = true;
   const fb = $('fb');
+  const fill = (w, cls) => esc(pre) + `<b style="color:var(--${cls});border-bottom:2px solid var(--${cls});padding:0 .3em">${esc(w)}</b>` + esc(post);
   if(val === a.toLowerCase()){
     const pts = hinted ? 0.5 : 1;
     score += pts; streak++;
     inp.className = 'ok';
     fb.className = 'fb ok'; fb.textContent = '✅ 答對了!' + (hinted ? '(使用提示 +0.5)' : '+1');
+    $('sentence').innerHTML = fill(a, 'ok');
   } else {
     streak = 0; wrongs.push(deck[i]);
     inp.className = 'bad';
-    fb.className = 'fb bad'; fb.textContent = `❌ 正確答案:${a}`;
+    fb.className = 'fb bad';
+    fb.innerHTML = `❌ 答錯了!<br>你的答案:<s>${esc(inp.value.trim())}</s><br>正確答案:<span style="font-size:1.2rem">${esc(a)}</span>`;
+    $('sentence').innerHTML = fill(a, 'ok');
   }
+  fb.scrollIntoView({block:'nearest'});
   $('score').textContent = `得分 ${score}`;
   $('streak').textContent = streak >= 2 ? `🔥 連對 ${streak}` : '';
   $('hintBtn').disabled = true;
