@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>單字填空挑戰</title>
+<style>
+:root{
+  --bg:#f4f6fb; --card:#fff; --text:#1f2430; --muted:#6b7280; --accent:#4f6df5; --accent-d:#3b54d0;
+  --ok:#16a34a; --okbg:#dcfce7; --bad:#dc2626; --badbg:#fee2e2; --line:#e3e7ef;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#12151d; --card:#1b2030; --text:#e8eaf0; --muted:#9aa3b5; --accent:#7b92ff; --accent-d:#9aabff;
+  --okbg:#12361f; --badbg:#3d1717; --line:#2c3347; --ok:#4ade80; --bad:#f87171;}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,"Microsoft JhengHei","PingFang TC",sans-serif;
+  min-height:100vh;display:flex;justify-content:center;padding:24px 16px}
+.app{width:100%;max-width:680px}
+h1{font-size:1.6rem;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 4px 16px rgba(0,0,0,.05)}
+.hidden{display:none!important}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text);padding:10px 16px}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.primary:hover{background:var(--accent-d)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.modes{display:grid;gap:10px;margin:16px 0}
+.modes button{text-align:left;padding:14px 16px}
+.modes small{display:block;color:var(--muted)}
+.bar{display:flex;justify-content:space-between;font-size:.9rem;color:var(--muted);margin-bottom:8px}
+.prog{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:20px}
+.prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.sentence{font-size:1.3rem;line-height:2;margin:8px 0}
+.zh{color:var(--muted);margin:0 0 20px}
+.pos{display:inline-block;font-size:.8rem;border:1px solid var(--line);border-radius:6px;padding:1px 8px;color:var(--muted);margin-bottom:8px}
+input[type=text]{font:inherit;font-size:1.1rem;width:100%;padding:12px 14px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--text)}
+input[type=text]:focus{outline:none;border-color:var(--accent)}
+input.ok{border-color:var(--ok);background:var(--okbg)}
+input.bad{border-color:var(--bad);background:var(--badbg)}
+.row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.row .grow{flex:1}
+.hint{color:var(--accent);font-family:ui-monospace,Consolas,monospace;letter-spacing:.15em;min-height:1.5em;margin-top:10px}
+.fb{margin-top:14px;padding:12px 14px;border-radius:10px;font-weight:600}
+.fb.ok{background:var(--okbg);color:var(--ok)}
+.fb.bad{background:var(--badbg);color:var(--bad)}
+.big{font-size:3rem;font-weight:700;color:var(--accent);margin:8px 0}
+.wrong{list-style:none;padding:0;margin:12px 0}
+.wrong li{padding:10px 0;border-bottom:1px solid var(--line)}
+.wrong b{color:var(--bad)}
+.wrong span{display:block;color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>📘 單字填空挑戰</h1>
+  <p class="sub">英文單字範圍約 2000–5000 字 · 共 <span id="total"></span> 題</p>
+
+  <div id="home" class="card">
+    <b>選擇練習模式</b>
+    <div class="modes">
+      <button data-n="10">快速練習<small>隨機 10 題</small></button>
+      <button data-n="25">標準練習<small>隨機 25 題</small></button>
+      <button data-n="all">全部挑戰<small>所有題目隨機排序</small></button>
+    </div>
+    <div class="sub" id="best"></div>
+    <div class="sub" style="margin:0">規則:閱讀句子與中文翻譯,輸入空格處的單字(不分大小寫)。使用提示得 0.5 分。</div>
+  </div>
+
+  <div id="game" class="card hidden">
+    <div class="bar"><span id="idx"></span><span id="score"></span><span id="streak"></span></div>
+    <div class="prog"><i id="pbar"></i></div>
+    <span class="pos" id="pos"></span>
+    <div class="sentence" id="sentence"></div>
+    <p class="zh" id="zh"></p>
+    <input type="text" id="ans" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="輸入單字…">
+    <div class="hint" id="hint"></div>
+    <div id="fb" class="fb hidden"></div>
+    <div class="row">
+      <button id="hintBtn">💡 提示</button>
+      <button id="speak">🔊 朗讀</button>
+      <span class="grow"></span>
+      <button class="primary" id="submit">送出</button>
+    </div>
+  </div>
+
+  <div id="result" class="card hidden" style="text-align:center">
+    <div>本次成績</div>
+    <div class="big" id="final"></div>
+    <div id="comment"></div>
+    <div id="wrongWrap" class="hidden" style="text-align:left">
+      <b>需要複習的單字</b>
+      <ul class="wrong" id="wrongList"></ul>
+    </div>
+    <div class="row" style="justify-content:center">
+      <button class="primary" id="again">再玩一次</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// [句子(空格用 ___), 答案, 中文翻譯, 詞性]
+const Q = [
+["The company decided to ___ its old computers with newer models.","replace","公司決定用較新的型號替換舊電腦。","v."],
+["She worked hard to ___ her dream of becoming a doctor.","achieve","她努力工作以實現成為醫生的夢想。","v."],
+["The test results were not ___ to show any clear pattern.","sufficient","測試結果不足以顯示任何明確的模式。","adj."],
+["His explanation was so ___ that nobody understood what he meant.","ambiguous","他的解釋非常含糊,沒有人明白他的意思。","adj."],
+["We should ___ heavy traffic on the way to the airport.","anticipate","我們應該預期前往機場的路上會塞車。","v."],
+["I really ___ your help with the moving.","appreciate","我真的很感激你幫忙搬家。","v."],
+["The government plans to ___ more money for public schools.","allocate","政府計畫為公立學校撥出更多經費。","v."],
+["The museum has a large collection of ___ Egyptian art.","ancient","這間博物館收藏了大量古埃及藝術品。","adj."],
+["He felt ___ before the job interview and couldn't sleep.","anxious","面試前他感到焦慮,無法入睡。","adj."],
+["Scientists are developing ___ intelligence that can learn on its own.","artificial","科學家正在開發能自我學習的人工智慧。","adj."],
+["Teachers need to ___ each student's progress regularly.","assess","老師需要定期評估每位學生的進度。","v."],
+["Regular exercise is ___ to both body and mind.","beneficial","規律運動對身心都有益。","adj."],
+["The river forms the ___ between the two countries.","boundary","這條河構成兩國之間的邊界。","n."],
+["The charity launched a ___ to raise money for homeless families.","campaign","慈善機構發起了一項為無家可歸家庭募款的活動。","n."],
+["The stadium has a ___ of fifty thousand people.","capacity","這座體育場的容納量為五萬人。","n."],
+["Under no ___ should you open this door.","circumstances","在任何情況下你都不應該打開這扇門。","n."],
+["The old bridge may ___ if it isn't repaired soon.","collapse","這座舊橋若不盡快修理可能會倒塌。","v."],
+["The company will ___ millions of dollars to the new project.","commit","公司將投入數百萬美元於這個新專案。","v."],
+["Nothing can ___ for the loss of a close friend.","compensate","沒有什麼能彌補失去摯友的痛苦。","v."],
+["The tax system is too ___ for most people to understand.","complex","稅制太複雜,大多數人無法理解。","adj."],
+["Please turn off your phone so you can ___ on your homework.","concentrate","請關掉手機,這樣你才能專心寫作業。","v."],
+["After reviewing the evidence, the jury had to ___ that he was guilty.","conclude","審閱證據後,陪審團必須斷定他有罪。","v."],
+["She is very ___ about her chances of winning the contest.","confident","她對自己贏得比賽的機會非常有信心。","adj."],
+["There is a serious ___ between the two neighbors over the fence.","conflict","兩位鄰居因圍籬而產生嚴重衝突。","n."],
+["Eating too much sugar can have serious health ___.","consequences","攝取過多糖分可能造成嚴重的健康後果。","n."],
+["The new law caused a ___ amount of debate in parliament.","considerable","新法案在國會引發了相當多的辯論。","adj."],
+["Many volunteers ___ their time to help the elderly.","contribute","許多志工奉獻時間幫助老年人。","v."],
+["The decision to close the factory was highly ___.","controversial","關閉工廠的決定極具爭議性。","adj."],
+["It took hours to ___ him that the plan was safe.","convince","花了好幾個小時才說服他這個計畫是安全的。","v."],
+["The two teams must ___ if they want to finish on time.","cooperate","兩個團隊若想準時完成就必須合作。","v."],
+["It's easy to ___ others, but much harder to do better yourself.","criticize","批評別人很容易,但自己做得更好卻困難得多。","v."],
+["The euro is the official ___ of many European countries.","currency","歐元是許多歐洲國家的官方貨幣。","n."],
+["The president will ___ a state of emergency tonight.","declare","總統今晚將宣布進入緊急狀態。","v."],
+["The number of visitors began to ___ after the summer.","decline","夏季過後遊客人數開始下降。","v."],
+["Scientists ___ the new device at an international conference.","demonstrated","科學家在國際會議上展示了這項新裝置。","v."],
+["Your success will ___ on how hard you work.","depend","你的成功取決於你有多努力。","v."],
+["It is hard to ___ between the twin sisters.","distinguish","要分辨這對雙胞胎姊妹很困難。","v."],
+["The airline offers both ___ and international flights.","domestic","這家航空公司提供國內與國際航班。","adj."],
+["This phone case is made of a very ___ material that lasts for years.","durable","這個手機殼由非常耐用的材質製成,可用好幾年。","adj."],
+["Farmers have to ___ to changes in the climate.","adapt","農民必須適應氣候的變化。","v."],
+["The sudden rain forced us to ___ our travel plans.","adjust","突如其來的雨迫使我們調整旅行計畫。","v."],
+["She is a strong ___ for women's rights.","advocate","她是女權的堅定倡導者。","n."],
+["Fruits and vegetables are ___ in this region during summer.","abundant","這個地區夏天水果和蔬菜十分豐富。","adj."],
+["Please give me an ___ description of the missing wallet.","accurate","請給我遺失錢包的準確描述。","adj."],
+["The captain refused to ___ the sinking ship until everyone was safe.","abandon","船長在所有人安全之前拒絕棄船。","v."],
+["Paris has a unique ___ that attracts artists from all over the world.","atmosphere","巴黎有獨特的氛圍,吸引來自世界各地的藝術家。","n."],
+["Only the police have the ___ to arrest suspects.","authority","只有警方有權逮捕嫌犯。","n."],
+["Don't ___ that everyone knows the rules already.","assume","不要假設每個人都已經知道規則。","v."],
+["The workers will ___ a meeting to discuss safety problems.","arrange","員工們將安排一場會議討論安全問題。","v."],
+["His positive ___ toward failure helped him keep trying.","attitude","他對失敗的正面態度幫助他持續嘗試。","n."],
+["The manager will ___ a new assistant next week.","appoint","經理下週將任命一位新助理。","v."],
+["There are several ways to ___ this difficult problem.","approach","有幾種方法可以處理這個難題。","v."],
+["Pollution is a serious threat to the natural ___.","environment","汙染對自然環境是嚴重的威脅。","n."],
+["He was awarded a ___ to study abroad for two years.","scholarship","他獲得獎學金出國讀書兩年。","n."],
+["Our teacher always ___ us to ask questions in class.","encourages","我們的老師總是鼓勵我們在課堂上提問。","v."],
+["The sales ___ rose sharply in the second half of the year.","figures","下半年的銷售數字大幅上升。","n."],
+["The doctor told him to ___ from smoking immediately.","refrain","醫生要他立刻戒除抽菸。","v."],
+["Honesty is one of the most important ___ in a friendship.","qualities","誠實是友誼中最重要的特質之一。","n."],
+["The two countries signed a peace ___ after years of war.","treaty","兩國在多年戰爭後簽署了和平條約。","n."],
+["Her ___ to the team was recognized with a special award.","contribution","她對團隊的貢獻獲得特別獎項的肯定。","n."],
+["The scientist made an important ___ while studying bacteria.","discovery","這位科學家在研究細菌時有了重要發現。","n."],
+["We need to ___ the risks before making a final decision.","evaluate","我們在做最後決定前需要評估風險。","v."],
+["It is ___ to wear a helmet when riding a motorcycle.","essential","騎機車時戴安全帽是必要的。","adj."]
+];
+
+const $ = id => document.getElementById(id);
+let deck = [], i = 0, score = 0, streak = 0, hinted = false, answered = false, wrongs = [];
+
+$('total').textContent = Q.length;
+function bestGet(){ try{ return localStorage.getItem('vocab_best'); }catch(e){ return null; } }
+function bestSet(v){ try{ localStorage.setItem('vocab_best', v); }catch(e){} }
+function showBest(){ const b = bestGet(); $('best').textContent = b ? '🏆 最高紀錄:' + b + '%' : ''; }
+showBest();
+
+function shuffle(a){ a = a.slice(); for(let k=a.length-1;k>0;k--){ const j = Math.floor(Math.random()*(k+1)); [a[k],a[j]] = [a[j],a[k]]; } return a; }
+function show(id){ ['home','game','result'].forEach(x => $(x).classList.toggle('hidden', x !== id)); }
+
+document.querySelectorAll('.modes button').forEach(b => b.onclick = () => {
+  const n = b.dataset.n === 'all' ? Q.length : +b.dataset.n;
+  deck = shuffle(Q).slice(0, n); i = 0; score = 0; streak = 0; wrongs = [];
+  show('game'); load();
+});
+
+function load(){
+  const [s, a, zh, pos] = deck[i];
+  hinted = false; answered = false;
+  $('idx').textContent = `第 ${i+1} / ${deck.length} 題`;
+  $('score').textContent = `得分 ${score}`;
+  $('streak').textContent = streak >= 2 ? `🔥 連對 ${streak}` : '';
+  $('pbar').style.width = (i / deck.length * 100) + '%';
+  $('pos').textContent = pos;
+  const [pre, post] = s.split('___');
+  $('sentence').innerHTML = esc(pre) + '<b style="border-bottom:2px solid var(--accent);padding:0 .6em">&nbsp;&nbsp;&nbsp;&nbsp;</b>' + esc(post);
+  $('zh').textContent = zh;
+  const inp = $('ans'); inp.value = ''; inp.className = ''; inp.disabled = false; inp.focus();
+  $('hint').textContent = ''; $('fb').className = 'fb hidden';
+  $('hintBtn').disabled = false; $('submit').textContent = '送出';
+}
+function esc(t){ return t.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+$('hintBtn').onclick = () => {
+  const a = deck[i][1];
+  hinted = true;
+  $('hint').textContent = a[0] + ' ' + '_ '.repeat(a.length - 1).trim() + `  (${a.length} 個字母)`;
+  $('hintBtn').disabled = true;
+  $('ans').focus();
+};
+
+function submit(){
+  if(answered){ next(); return; }
+  const inp = $('ans'), val = inp.value.trim().toLowerCase();
+  if(!val) return;
+  const a = deck[i][1];
+  answered = true; inp.disabled = true;
+  const fb = $('fb');
+  if(val === a.toLowerCase()){
+    const pts = hinted ? 0.5 : 1;
+    score += pts; streak++;
+    inp.className = 'ok';
+    fb.className = 'fb ok'; fb.textContent = '✅ 答對了!' + (hinted ? '(使用提示 +0.5)' : '+1');
+  } else {
+    streak = 0; wrongs.push(deck[i]);
+    inp.className = 'bad';
+    fb.className = 'fb bad'; fb.textContent = `❌ 正確答案:${a}`;
+  }
+  $('score').textContent = `得分 ${score}`;
+  $('streak').textContent = streak >= 2 ? `🔥 連對 ${streak}` : '';
+  $('hintBtn').disabled = true;
+  $('submit').textContent = i + 1 < deck.length ? '下一題 ➜' : '查看成績';
+  $('submit').focus();
+}
+function next(){
+  i++;
+  if(i >= deck.length) finish(); else load();
+}
+$('submit').onclick = submit;
+$('ans').addEventListener('keydown', e => { if(e.key === 'Enter') submit(); });
+document.addEventListener('keydown', e => { if(e.key === 'Enter' && answered && document.activeElement !== $('submit')) submit(); });
+
+$('speak').onclick = () => {
+  if(!('speechSynthesis' in window)) return;
+  const [s, a] = deck[i];
+  const u = new SpeechSynthesisUtterance(answered ? s.replace('___', a) : s.replace('___', 'blank'));
+  u.lang = 'en-US'; u.rate = .9;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+};
+
+function finish(){
+  $('pbar').style.width = '100%';
+  const pct = Math.round(score / deck.length * 100);
+  $('final').textContent = `${score} / ${deck.length}  (${pct}%)`;
+  $('comment').textContent = pct >= 90 ? '太厲害了!單字高手 🎉' : pct >= 70 ? '表現不錯,繼續保持 👍' : pct >= 50 ? '還可以,再多練習會更好 💪' : '別灰心,複習下方單字再挑戰一次!';
+  const b = +bestGet() || 0;
+  if(deck.length >= 10 && pct > b) bestSet(pct);
+  $('wrongWrap').classList.toggle('hidden', !wrongs.length);
+  $('wrongList').innerHTML = wrongs.map(([s,a,zh]) =>
+    `<li><b>${a}</b> ${esc(s.replace('___', a))}<span>${esc(zh)}</span></li>`).join('');
+  show('result');
+}
+$('again').onclick = () => { showBest(); show('home'); };
+</script>
+</body>
+</html>
