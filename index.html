@@ -237,15 +237,18 @@ function submit(){
   $('streak').textContent = streak >= 2 ? `🔥 連對 ${streak}` : '';
   $('hintBtn').disabled = true;
   $('submit').textContent = i + 1 < deck.length ? '下一題 ➜' : '查看成績';
-  $('submit').focus();
+  fb.scrollIntoView({block:'nearest'});
 }
 function next(){
   i++;
   if(i >= deck.length) finish(); else load();
 }
 $('submit').onclick = submit;
-$('ans').addEventListener('keydown', e => { if(e.key === 'Enter') submit(); });
-document.addEventListener('keydown', e => { if(e.key === 'Enter' && answered && document.activeElement !== $('submit')) submit(); });
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Enter' || e.repeat || $('game').classList.contains('hidden')) return;
+  e.preventDefault(); // 避免 Enter 的 keypress 觸發按鈕 click 而直接跳題
+  submit();
+});
 
 $('speak').onclick = () => {
   if(!('speechSynthesis' in window)) return;
